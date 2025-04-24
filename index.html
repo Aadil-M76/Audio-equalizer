@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Equalizer Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px;
+            background-color: #ffffff;
+            color: rgb(14, 1, 1);
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+
+        code {
+            background-color: #f8f9fa;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Consolas', monospace;
+        }
+
+        .code-block {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .features-list {
+            columns: 2;
+            list-style-type: square;
+            color: #3498db;
+        }
+
+        .screenshot {
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        img {
+            max-width: 80%;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .note {
+            background-color: #e3f2fd;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Real-Time Audio Equalizer</h1>
+        <p>Python-based DSP Application with GUI</p>
+    </div>
+
+    <div class="section">
+        <h2>Introduction</h2>
+        <p>This application is a real-time audio equalizer with visual feedback, implementing:</p>
+        <ul class="features-list">
+            <li>5-band IIR filter bank using bilinear transform</li>
+            <li>Real-time audio processing (44.1kHz)</li>
+            <li>Interactive GUI with adjustable sliders</li>
+            <li>Instant spectral visualization</li>
+            <li>Low-latency audio I/O</li>
+            <li>Stateful filter implementation</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Technical Specifications</h2>
+        <div class="code-block">
+            <strong>Filter Design:</strong><br>
+            - Butterworth bandpass filters<br>
+            - Center frequencies: 60Hz, 230Hz, 910Hz, 3.6kHz, 14kHz<br>
+            - Q factor = 2.0<br>
+            - ±24dB adjustable gain per band<br><br>
+            
+            <strong>DSP Pipeline:</strong><br>
+            1. Input acquisition (mono)<br>
+            2. Parallel filter bank processing<br>
+            3. Gain application<br>
+            4. Output mixing (stereo)<br>
+            5. FFT-based visualization
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Requirements</h2>
+        <div class="code-block">
+            Python 3.8+<br>
+            Packages:<br>
+            - numpy<br>
+            - scipy<br>
+            - sounddevice<br>
+            - matplotlib<br>
+            - tkinter<br><br>
+            
+            Install with:<br>
+            <code>pip install numpy scipy sounddevice matplotlib</code>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Application Screenshot</h2>
+        <div class="screenshot">
+            <!-- Add screenshot path here -->
+            <img src= "C:\Users\Aadil\OneDrive\Desktop\MAThs\WhatsApp Image 2025-04-10 at 22.55.22_3133cd0b.jpg"alt="Equalizer Interface">
+            <p>GUI showing frequency bands and spectrum analyzer</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Usage Instructions</h2>
+        <ol>
+            <li>Run <code>python audio_equalizer.py</code></li>
+            <li>Click "Start Processing"</li>
+            <li>Adjust band sliders (±24dB range)</li>
+            <li>Observe real-time spectrum changes</li>
+            <li>Click "Stop Processing" to end</li>
+        </ol>
+        
+        <div class="note">
+            <strong>Note:</strong> Ensure proper audio devices are configured in your OS settings.<br>
+            First-run may require microphone/speaker permissions.
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>License</h2>
+        <p>MIT License - Free for educational and personal use</p>
+        <p>Includes modified BSD-licensed components from SciPy and NumPy</p>
+    </div>
+    <div class="section">
+        <h2>Web Control</h2>
+        <div class="code-block">
+            <button id="runButton" class="control-button" onclick="toggleEqualizer()">
+                Start Equalizer
+            </button>
+            <div id="status"></div>
+        </div>
+    </div>
+    
+    <script>
+    let isRunning = false;
+    
+    function toggleEqualizer() {
+        const button = document.getElementById('runButton');
+        const statusDiv = document.getElementById('status');
+        
+        if (!isRunning) {
+            fetch('/run', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        isRunning = true;
+                        button.textContent = 'Stop Equalizer';
+                        statusDiv.innerHTML = `<span style="color: green">${data.message}</span>`;
+                    }
+                });
+        } else {
+            fetch('/stop', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        isRunning = false;
+                        button.textContent = 'Start Equalizer';
+                        statusDiv.innerHTML = `<span style="color: red">${data.message}</span>`;
+                    }
+                });
+        }
+    }
+    </script>
+    
+    <style>
+    .control-button {
+        padding: 15px 30px;
+        font-size: 18px;
+        background-color: #0a2c74;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .control-button:hover {
+        background-color: #45a049;
+    }
+    
+    #status {
+        margin-top: 15px;
+        font-size: 16px;
+    }
+    </style>
+</body>
+</html>
